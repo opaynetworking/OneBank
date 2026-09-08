@@ -3,6 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- NEW: Force No-Cache Meta Tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <!-- NEW: Cache-Busting Script (Stops iOS Caching) -->
+    <script>
+        if (!window.location.search.includes('v=')) {
+            window.location.replace(window.location.pathname + '?v=' + Date.now());
+        }
+    </script>
+
     <title>OneBank UI</title>
      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -353,7 +366,7 @@
     // EDIT YOUR BALANCE HERE (NO DEV TOOLS REQUIRED)
     // ==================================================================
     const ACCOUNT_CONFIG = {
-        DEFAULT_BALANCE: 5006006.32,      // <--- CHANGE THIS NUMBER
+        DEFAULT_BALANCE: 4006006.32,      // <--- CHANGE THIS NUMBER
         DEFAULT_HIDDEN: true,          // <--- Set to false to show balance initially
         ACCOUNT_NUMBER: "0094804330",  // <--- CHANGE ACCOUNT NUMBER HERE
         ACCOUNT_NAME: "Daniel Chukwuemeka", // <--- CHANGE NAME HERE

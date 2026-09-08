@@ -1,5 +1,4 @@
-/* ===== Basic Service Worker for Offline Caching ===== */
-const CACHE_NAME = 'sterling-bank-v1';
+const CACHE_NAME = 'sterling-bank-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -9,7 +8,6 @@ const urlsToCache = [
   './transaction.html'
 ];
 
-// Install Service Worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -17,10 +15,29 @@ self.addEventListener('install', event => {
   );
 });
 
-// Fetch Assets (Network falling back to cache)
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// CHANGE: Network First Strategy (Checks server for updates)
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-    .then(response => response || fetch(event.request))
+    fetch(event.request)
+    .then(response => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+      return response;
+    })
+    .catch(() => caches.match(event.request))
   );
 });
