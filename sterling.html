@@ -353,7 +353,7 @@
     // EDIT YOUR BALANCE HERE (NO DEV TOOLS REQUIRED)
     // ==================================================================
     const ACCOUNT_CONFIG = {
-        DEFAULT_BALANCE: 5006006.32,      // <--- CHANGE THIS NUMBER
+        DEFAULT_BALANCE: 4006006.32,      // <--- CHANGE THIS NUMBER
         DEFAULT_HIDDEN: true,          // <--- Set to false to show balance initially
         ACCOUNT_NUMBER: "0094804330",  // <--- CHANGE ACCOUNT NUMBER HERE
         ACCOUNT_NAME: "Daniel Chukwuemeka", // <--- CHANGE NAME HERE
@@ -465,22 +465,42 @@
         }
         setInterval(nextSlide, 2000);
 
-        // --- 5. Pull to Refresh logic (Existing Logic) ---
+        // --- 5. Pull to Refresh logic (UPDATED TO CLEAR CACHE) ---
         const pullIndicator = document.getElementById('pullRefreshIndicator');
         let startY = 0, pullDistance = 0, isPulling = false, refreshTimeout = null;
+        
         function performRefresh() {
             if (refreshTimeout) clearTimeout(refreshTimeout);
+            
+            // Add spinning class
             pullIndicator.classList.add('refreshing');
-            pullIndicator.style.top = '40px'; pullIndicator.style.opacity = '1';
+            pullIndicator.style.top = '40px';
+            pullIndicator.style.opacity = '1';
             pullIndicator.classList.add('visible');
-            refreshTimeout = setTimeout(resetRefresh, 3000);
+
+            // 1. CLEAR SERVICE WORKER CACHE
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    return Promise.all(names.map(function(name) {
+                        return caches.delete(name);
+                    }));
+                });
+            }
+
+            // 2. CLEAR ANY LOCAL CACHE AND RELOAD WITH CACHE BUSTING
+            setTimeout(() => {
+                // Add a unique parameter to bypass the cache on the server
+                window.location.href = window.location.pathname + '?v=' + Date.now();
+            }, 1000); // Wait 1 second to clear cache and show spinner
         }
+
         function resetRefresh() {
             pullIndicator.classList.remove('refreshing');
             pullIndicator.style.top = '-60px'; pullIndicator.style.opacity = '0';
             pullIndicator.classList.remove('visible');
             if (refreshTimeout) clearTimeout(refreshTimeout);
         }
+
         window.addEventListener('touchstart', (e) => {
             if (window.scrollY === 0 && !pullIndicator.classList.contains('refreshing')) {
                 startY = e.touches[0].clientY; isPulling = false;
