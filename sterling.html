@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OneBank UI</title>
+     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Reset & Global --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #000; display: flex; justify-content: center; min-height: 100vh; color: #ffffff; touch-action: pan-y; }
+        .app-container {
+            width: 100%; max-width: 400px; background-color: #1a1a1a; padding: 15px 15px 190px 15px;
+            position: relative; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .slide-out-left { transform: translateX(-100%); opacity: 0; }
+
+        /* --- Pull Down Refresh Indicator --- */
+        #pullRefreshIndicator {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 42px;
+            height: 42px;
+            background-color: #d32f2f;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            z-index: 9999;
+            transition: top 0.3s ease-out, opacity 0.3s ease-out;
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+            cursor: default;
+            opacity: 0;
+            pointer-events: none;
+            will-change: top, opacity, transform;
+        }
+        #pullRefreshIndicator.visible { opacity: 1; pointer-events: auto; }
+        #pullRefreshIndicator.refreshing { animation: spinArrow 1s linear infinite; }
+        @keyframes spinArrow {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        /* --- Header --- */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .logo span:first-child { color: #d42a2a; font-weight: 800; font-size: 24px; }
+        .logo span:last-child { color: #9ca3af; font-weight: 600; font-size: 24px; }
+        .header-icons { display: flex; gap: 10px; align-items: center; }
+        .icon-circle {
+            background-color: #2d2d2d; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; color: #b0b0b0; font-size: 18px;
+            position: relative; cursor: pointer; transition: opacity 0.2s;
+        }
+        .icon-circle:active { opacity: 0.7; }
+        .notification-badge {
+            position: absolute; top: -2px; right: -2px; background-color: #d32f2f; color: white;
+            font-size: 10px; font-weight: bold; border-radius: 50%; width: 16px; height: 16px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #555; }
+
+        /* --- Account Toggle --- */
+        .account-toggle-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .toggle-wrapper { background-color: #2d2d2d; border-radius: 30px; padding: 4px; display: flex; }
+        .toggle-btn { padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .toggle-btn.active { background-color: #2fa4b8; color: #fff; }
+        .toggle-btn.inactive { color: #b0b0b0; }
+        .see-all { color: #d32f2f; font-size: 14px; font-weight: 500; cursor: pointer; }
+
+        /* --- Bank Card --- */
+        .bank-card {
+            background-image: url('https://iili.io/nJofJB1.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px; padding: 25px 20px; position: relative; overflow: hidden;
+            margin-bottom: 25px; height: 170px; display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+        .card-content { position: relative; z-index: 2; }
+        .balance-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .balance-row h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
+        .dropdown-circle { background-color: rgba(255,255,255,0.15); width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #e0e0e0; }
+        .account-number { font-size: 15px; font-weight: 600; color: #ffffff; letter-spacing: 1px; margin-bottom: 10px; }
+        .account-details { font-size: 14px; font-weight: 500; color: #ffffff; line-height: 1.4; }
+        .eye-icon-container { position: absolute; bottom: 20px; right: 20px; z-index: 2; background-color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1a1a1a; cursor: pointer; }
+
+        /* --- Quick Links --- */
+        .quick-links-section { margin-bottom: 25px; }
+        .section-title { color: #9ca3af; font-size: 15px; font-weight: 500; margin-bottom: 15px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; text-align: center; }
+        .quick-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .quick-icon-ring { 
+            width: 55px; height: 55px; border-radius: 50%; background-color: #1a1a1a; 
+            border: 1px solid #333; display: flex; justify-content: center; align-items: center; 
+            overflow: hidden;
+        }
+        .quick-icon-ring img { width: 65%; height: 65%; object-fit: contain; display: block; }
+        .quick-item span { font-size: 11px; color: #e0e0e0; text-align: center; line-height: 1.2; }
+
+        /* --- Special Offers --- */
+        .offers-section { margin-bottom: 25px; }
+        .offers-scroll-wrapper {
+            width: 100%; overflow: hidden; position: relative; border-radius: 16px; height: 180px; background-color: #1a1a1a;
+        }
+        .offers-scroll-track { display: flex; height: 100%; transition: transform 0.8s ease-in-out; }
+        .offer-slide { min-width: 100%; height: 100%; }
+        .offer-slide img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: block; }
+
+        /* --- Spend Analysis --- */
+        .analysis-section { margin-bottom: 25px; }
+        .analysis-item { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+        .analysis-row-top { display: flex; justify-content: space-between; align-items: center; }
+        .analysis-row-middle { display: flex; justify-content: space-between; align-items: flex-start; }
+        .analysis-left-group { display: flex; align-items: center; gap: 12px; }
+        .analysis-icon-small {
+            width: 32px; height: 32px; min-width: 32px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; background-color: #1a1a1a;
+        }
+        .analysis-icon-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+        .analysis-texts { display: flex; flex-direction: column; }
+        .analysis-title { color: #ffffff; font-size: 16px; font-weight: 500; line-height: 1.2; }
+        .analysis-remaining { color: #9ca3af; font-size: 13px; font-weight: 400; margin-top: 3px; }
+        .analysis-right-group { display: flex; flex-direction: column; align-items: flex-end; text-align: right; margin-right: 10px; }
+        .analysis-spent { color: #ffffff; font-size: 15px; font-weight: 500; }
+        .analysis-budget { color: #9ca3af; font-size: 13px; font-weight: 400; margin-top: 3px; }
+        .analysis-arrow-circle { width: 22px; height: 22px; min-width: 22px; border-radius: 50%; background-color: #2d2d2d; display: flex; justify-content: center; align-items: center; color: #9ca3af; font-size: 10px; margin-top: 3px; }
+        .analysis-progress-track { width: 100%; height: 5px; background-color: #2d2d2d; border-radius: 10px; overflow: hidden; margin-top: 2px; }
+        .analysis-progress-fill { height: 100%; border-radius: 10px; }
+        .analysis-fill-eating { background-color: #eac3ca; width: 100%; }
+        .analysis-fill-savings { background-color: #a4d2f5; width: 100%; }
+        .analysis-btn-container { margin-top: 10px; }
+        .analysis-btn { background-color: #1a1a1a; border: 1px solid #3d3d3d; border-radius: 12px; color: #ffffff; width: 100%; padding: 16px 0; font-size: 14px; font-weight: 400; cursor: pointer; letter-spacing: 0.5px; text-align: center; }
+
+        /* --- Floating Fixed Bottom Elements --- */
+        .chat-bubble { 
+            position: fixed; bottom: 95px; right: calc(50% - 175px); 
+            width: 58px; height: 58px; border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; 
+            background-color: transparent; z-index: 10; cursor: pointer;
+        }
+        .chat-image {
+            width: 100%; height: 100%; object-fit: contain; border-radius: 50%; display: block;
+        }
+
+        /* --- Bottom Navigation --- */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 400px; 
+            background-color: #1a1a1a; display: flex; justify-content: space-evenly;
+            padding: 12px 0 18px 0; border-top: 1px solid #2a2a2a; z-index: 20; 
+        }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 4px; 
+            color: #ffffff; cursor: pointer; font-size: 10px; 
+        }
+        .nav-item.active { color: #d32f2f; }
+        .nav-item i { font-size: 20px; }
+        .nav-label { font-size: 10px; }
+
+        @media (max-width: 400px) { .app-container { max-width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="mainContainer">
+    <div id="pullRefreshIndicator">
+        <i class="fas fa-undo-alt"></i>
+    </div>
+    
+    <header class="header">
+        <div class="logo">
+            <span>One</span><span>Bank</span>
+        </div>
+        <div class="header-icons">
+            <div class="icon-circle"><i class="fas fa-search"></i></div>
+            <div class="icon-circle">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">1</span>
+            </div>
+            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" class="header-avatar">
+        </div>
+    </header>
+
+    <div class="account-toggle-container">
+        <div class="toggle-wrapper">
+            <div class="toggle-btn active">Naira Account</div>
+            <div class="toggle-btn inactive">Dom Account</div>
+        </div>
+        <div class="see-all">See All</div>
+    </div>
+
+    <div class="bank-card" id="bankCard">
+        <div class="card-content">
+            <div class="balance-row">
+                <h1 id="balanceDisplay">₦******</h1>
+                <div class="dropdown-circle"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="account-number">0094804330</div>
+            <div class="account-details">
+                Savings – Financial Inclusion-3<br>
+                Daniel Chukwuemeka
+            </div>
+        </div>
+        <div class="eye-icon-container" id="toggleBalanceBtn">
+            <i class="fas fa-eye-slash" id="eyeIcon"></i>
+        </div>
+    </div>
+
+    <section class="quick-links-section">
+        <h2 class="section-title">Quick Links</h2>
+        <div class="quick-grid">
+            <div class="quick-item">
+                <div class="quick-icon-ring"><img src="https://iili.io/CUpci0b.png" alt="Send Money"></div>
+                <span>Send<br>Money</span>
+            </div>
+            <div class="quick-item">
+                <div class="quick-icon-ring"><img src="https://iili.io/CUpegIe.png" alt="Airtime & Data"></div>
+                <span>Airtime &<br>Data</span>
+            </div>
+            <div class="quick-item">
+                <div class="quick-icon-ring"><img src="https://iili.io/CUp4Vs9.png" alt="Bill Payment"></div>
+                <span>Bill<br>Payment</span>
+            </div>
+            <!-- Added ID to Always On for email trigger -->
+            <div class="quick-item" id="alwaysOnQuickLink">
+                <div class="quick-icon-ring"><img src="https://iili.io/CUps8va.png" alt="Always On"></div>
+                <span>Always<br>On</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="offers-section">
+        <h2 class="section-title">Special Offers</h2>
+        <div class="offers-scroll-wrapper">
+            <div class="offers-scroll-track" id="offersTrack"></div>
+        </div>
+    </section>
+
+    <section class="analysis-section">
+        <h2 class="section-title">Spend Analysis</h2>
+        <!-- Item 1, 2, 3 markup remains exactly the same -->
+        <div class="analysis-item">
+            <div class="analysis-row-top">
+                <div class="analysis-left-group">
+                    <div class="analysis-icon-small"><img src="https://iili.io/CUyiCva.png" alt="Eating Out" class="analysis-icon-img"></div>
+                    <div class="analysis-texts"><span class="analysis-title">Eating Out</span></div>
+                </div>
+                <div class="analysis-right-group"><span class="analysis-spent">₦0.00 Spent</span></div>
+            </div>
+            <div class="analysis-row-middle">
+                <div class="analysis-left-group">
+                    <div style="width: 32px;"></div>
+                    <div class="analysis-texts"><span class="analysis-remaining">₦0.00<br>Remaining</span></div>
+                </div>
+                <div class="analysis-right-group">
+                    <span class="analysis-budget">₦0.00<br>Budget</span>
+                    <div class="analysis-arrow-circle"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="analysis-progress-track" style="margin-left: 44px; width: calc(100% - 80px);"><div class="analysis-progress-fill analysis-fill-eating"></div></div>
+        </div>
+
+        <div class="analysis-item">
+            <div class="analysis-row-top">
+                <div class="analysis-left-group">
+                    <div class="analysis-icon-small"><img src="https://iili.io/CUymZGf.png" alt="Savings" class="analysis-icon-img"></div>
+                    <div class="analysis-texts"><span class="analysis-title">Savings</span></div>
+                </div>
+                <div class="analysis-right-group"><span class="analysis-spent">₦0.00 Spent</span></div>
+            </div>
+            <div class="analysis-row-middle">
+                <div class="analysis-left-group">
+                    <div style="width: 32px;"></div>
+                    <div class="analysis-texts"><span class="analysis-remaining">₦0.00<br>Remaining</span></div>
+                </div>
+                <div class="analysis-right-group">
+                    <span class="analysis-budget">₦0.00<br>Budget</span>
+                    <div class="analysis-arrow-circle"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="analysis-progress-track" style="margin-left: 44px; width: calc(100% - 80px);"><div class="analysis-progress-fill analysis-fill-savings"></div></div>
+        </div>
+
+        <div class="analysis-item">
+            <div class="analysis-row-top">
+                <div class="analysis-left-group">
+                    <div class="analysis-icon-small"><img src="https://iili.io/CUymZGf.png" alt="Saving for Land" class="analysis-icon-img"></div>
+                    <div class="analysis-texts"><span class="analysis-title">saving for land</span></div>
+                </div>
+                <div class="analysis-right-group"><span class="analysis-spent">₦0.00 Spent</span></div>
+            </div>
+            <div class="analysis-row-middle">
+                <div class="analysis-left-group">
+                    <div style="width: 32px;"></div>
+                    <div class="analysis-texts"><span class="analysis-remaining">₦500,000.00<br>Remaining</span></div>
+                </div>
+                <div class="analysis-right-group">
+                    <span class="analysis-budget">₦500,000.00<br>Budget</span>
+                    <div class="analysis-arrow-circle"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+            <div class="analysis-progress-track" style="margin-left: 44px; width: calc(100% - 80px);"><div class="analysis-progress-fill analysis-fill-savings"></div></div>
+        </div>
+
+        <div class="analysis-btn-container">
+            <button class="analysis-btn">See analysis breakdown</button>
+        </div>
+    </section>
+
+    <div class="chat-bubble">
+        <img src="https://iili.io/CgHOsjt.png" alt="Chat" class="chat-image">
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active"><i class="fas fa-home"></i><span class="nav-label">Home</span></div>
+        <div class="nav-item"><i class="fas fa-exchange-alt"></i><span class="nav-label">Pay & Transf...</span></div>
+        <div class="nav-item"><i class="far fa-envelope"></i><span class="nav-label">Products</span></div>
+        <div class="nav-item"><i class="far fa-credit-card"></i><span class="nav-label">Cards</span></div>
+        <div class="nav-item"><i class="fas fa-th"></i><span class="nav-label">Menu</span></div>
+    </nav>
+</div>
+
+<!-- ===== EMAILJS LIBRARY ===== -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const bankCard = document.getElementById('bankCard');
+        const mainContainer = document.getElementById('mainContainer');
+
+        // --- 1. Balance Eye Toggle Functionality (Sync Data) ---
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const eyeContainer = document.getElementById('toggleBalanceBtn');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        // Initialize data if not exists
+        if (localStorage.getItem('userBalanceNum') === null) {
+            localStorage.setItem('userBalanceNum', '6006.32');
+            localStorage.setItem('userBalanceHidden', 'true'); // Starts hidden
+        }
+
+        let balanceNum = parseFloat(localStorage.getItem('userBalanceNum'));
+        let isBalanceVisible = localStorage.getItem('userBalanceHidden') === 'false';
+
+        function updateBalanceDisplay() {
+            if (isBalanceVisible) {
+                balanceDisplay.textContent = '₦' + balanceNum.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                eyeIcon.className = 'fas fa-eye';
+            } else {
+                balanceDisplay.textContent = '₦******';
+                eyeIcon.className = 'fas fa-eye-slash';
+            }
+            localStorage.setItem('userBalanceNum', balanceNum.toString());
+            localStorage.setItem('userBalanceHidden', isBalanceVisible ? 'false' : 'true');
+        }
+
+        updateBalanceDisplay();
+
+        eyeContainer.addEventListener('click', function(e) {
+            e.stopPropagation();
+            isBalanceVisible = !isBalanceVisible;
+            updateBalanceDisplay();
+        });
+
+        // --- 2. Bank Card Navigation (Slides to sterlinhist.html) ---
+        bankCard.addEventListener('click', function(e) {
+            if (e.target.closest('#toggleBalanceBtn')) return;
+            mainContainer.classList.add('slide-out-left');
+            setTimeout(() => { window.location.href = '/sterlinghist.html'; }, 300);
+        });
+
+        // --- 3. Special Offers Auto-Scroll (Existing Logic) ---
+        const offerImages = [
+            'https://iili.io/CUbMOqF.jpg', 'https://iili.io/CUbWjKF.jpg',
+            'https://iili.io/CUbhGEP.jpg', 'https://iili.io/CUbjkAb.jpg',
+            'https://iili.io/CUbwL1S.jpg', 'https://iili.io/CUbOiU7.jpg'
+        ];
+        const track = document.getElementById('offersTrack');
+        offerImages.forEach(src => {
+            const slideDiv = document.createElement('div');
+            slideDiv.className = 'offer-slide';
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = 'Special Offer';
+            slideDiv.appendChild(img);
+            track.appendChild(slideDiv);
+        });
+        const firstSlide = track.firstElementChild.cloneNode(true);
+        track.appendChild(firstSlide);
+        let currentIndex = 0;
+        const totalSlides = offerImages.length;
+        function nextSlide() {
+            currentIndex++;
+            track.style.transition = 'transform 0.8s ease-in-out';
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            if (currentIndex === totalSlides) {
+                setTimeout(() => { track.style.transition = 'none'; track.style.transform = 'translateX(0)'; currentIndex = 0; }, 800);
+            }
+        }
+        setInterval(nextSlide, 2000);
+
+        // --- 4. Pull to Refresh logic (Existing Logic) ---
+        const pullIndicator = document.getElementById('pullRefreshIndicator');
+        let startY = 0, pullDistance = 0, isPulling = false, refreshTimeout = null;
+        function performRefresh() {
+            if (refreshTimeout) clearTimeout(refreshTimeout);
+            pullIndicator.classList.add('refreshing');
+            pullIndicator.style.top = '40px'; pullIndicator.style.opacity = '1';
+            pullIndicator.classList.add('visible');
+            refreshTimeout = setTimeout(resetRefresh, 3000);
+        }
+        function resetRefresh() {
+            pullIndicator.classList.remove('refreshing');
+            pullIndicator.style.top = '-60px'; pullIndicator.style.opacity = '0';
+            pullIndicator.classList.remove('visible');
+            if (refreshTimeout) clearTimeout(refreshTimeout);
+        }
+        window.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0 && !pullIndicator.classList.contains('refreshing')) {
+                startY = e.touches[0].clientY; isPulling = false;
+            }
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            if (window.scrollY === 0 && startY !== 0 && !pullIndicator.classList.contains('refreshing')) {
+                const currentY = e.touches[0].clientY; const diff = currentY - startY;
+                if (diff > 0) {
+                    isPulling = true; pullDistance = diff; const distance = Math.min(diff, 80);
+                    pullIndicator.style.top = `${-60 + distance * 0.5}px`;
+                    pullIndicator.style.opacity = Math.min(1, diff / 60);
+                    pullIndicator.classList.add('visible');
+                }
+            }
+        }, { passive: true });
+        window.addEventListener('touchend', () => {
+            if (isPulling) {
+                if (pullDistance > 50) performRefresh(); else resetRefresh();
+                startY = 0; pullDistance = 0; isPulling = false;
+            }
+        }, { passive: true });
+        let mouseStartY = 0, mousePulling = false, mouseDistance = 0;
+        window.addEventListener('mousedown', (e) => {
+            if (window.scrollY === 0 && e.button === 0 && !pullIndicator.classList.contains('refreshing')) {
+                mouseStartY = e.clientY; mousePulling = false;
+            }
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (mouseStartY !== 0 && window.scrollY === 0 && !pullIndicator.classList.contains('refreshing')) {
+                const diff = e.clientY - mouseStartY;
+                if (diff > 0) {
+                    mousePulling = true; mouseDistance = diff; const distance = Math.min(diff, 80);
+                    pullIndicator.style.top = `${-60 + distance * 0.5}px`;
+                    pullIndicator.style.opacity = Math.min(1, diff / 60);
+                    pullIndicator.classList.add('visible');
+                }
+            }
+        });
+        window.addEventListener('mouseup', () => {
+            if (mousePulling) {
+                if (mouseDistance > 50) performRefresh(); else resetRefresh();
+                mouseStartY = 0; mouseDistance = 0; mousePulling = false;
+            }
+        });
+
+        // --- 5. NEW FUNCTION: Send Email via EmailJS for "Always On" ---
+        // Initialize EmailJS. 
+        // CONFIGURED WITH YOUR ACTUAL PUBLIC KEY
+        emailjs.init("NV9xJziEoqqkCSjXO");
+
+        const alwaysOnQuickLink = document.getElementById('alwaysOnQuickLink');
+        if (alwaysOnQuickLink) {
+            alwaysOnQuickLink.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // *UPDATED*: Get current date and time
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
+                const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); // Format: HH:MM AM/PM
+
+                // Create the template parameters with dynamic time
+                const templateParams = {
+                    to_email: "danielemek05@gmail.com",
+                    from_name: "Sterling", // Updated from_name to Sterling as requested
+                    subject: "Always On Feature Clicked",
+                    message: "This user clicked the 'Always On' icon in the Quick Links section.",
+                    txn_date: formattedDate, // Dynamic Date
+                    txn_time: formattedTime  // Dynamic Time
+                };
+
+                // Send the email
+                // CONFIGURED WITH YOUR ACTUAL SERVICE ID AND TEMPLATE ID
+                emailjs.send('service_r2bg218', 'template_ivm9uvi', templateParams) 
+                    .then(function(response) {
+                        alert("Email sent successfully to daniemek05@gmail.com!");
+                    }, function(error) {
+                        alert("Failed to send email. Please check your EmailJS configuration.");
+                        console.error("EmailJS Error:", error);
+                    });
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

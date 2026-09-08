@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Sterling Bank Login</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0d0d0f;
+            overflow: hidden;
+        }
+
+        /* ===== BACKGROUND IMAGE ===== */
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: url('https://iili.io/n3R1JR9.png') no-repeat center center / cover;
+            filter: brightness(0.95) saturate(1.1);
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: rgba(10, 10, 14, 0.55);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            max-height: 932px;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+
+        /* ===== TOP SECTION ===== */
+        .top-section {
+            position: relative;
+            z-index: 1;
+            padding-top: 30px;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 15px;
+            right: 2px;
+            width: 40px;
+            height: 40px;
+            background-color: #d42b2b;
+            border-radius: 50%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 8px 10px;
+        }
+        .notification-dot::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: #ffffff;
+            border-radius: 50%;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 35px;
+        }
+
+        .greeting {
+            font-size: 45px;
+            color: #A8A8A8;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .switch-account {
+            color: #FF4646;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+            letter-spacing: 0.2px;
+            transition: opacity 0.2s;
+        }
+        .switch-account:active { opacity: 0.7; }
+
+        .user-name {
+            font-size: 45px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 10px;
+        }
+
+        /* ===== PASSWORD SECTION ===== */
+        .password-section {
+            position: relative;
+            z-index: 1;
+            margin-top: 30px;
+        }
+
+        .password-input-wrapper {
+            background-color: rgba(58, 58, 62, 0.85);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 10px;
+            padding: 15px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin-top: 15px;
+        }
+
+        .password-label {
+            font-size: 10px;
+            color: #8A8A8A;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .password-field {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .password-input {
+            background: none;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            font-family: inherit;
+        }
+        .password-input::placeholder { color: #A8A8A8; }
+
+        .eye-icon {
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .eye-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: #8a8a8e;
+            stroke-width: 2;
+        }
+
+        .forgot-password {
+            color: #FF4646;
+            font-size: 14px;
+            padding-left: 8px;
+            font-weight: 500;
+            margin-top: 18px;
+            cursor: pointer;
+            padding-bottom: 15px;
+            transition: opacity 0.2s;
+            display: inline-block;
+        }
+        .forgot-password:active { opacity: 0.7; }
+
+        /* ===== LOGIN SECTION ===== */
+        .login-section {
+            position: relative;
+            z-index: 1;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .login-btn {
+            flex: 1;
+            background-color: #FF4646;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s, transform 0.1s;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+        .login-btn:active {
+            background-color: #e63a3a;
+            transform: scale(0.97);
+        }
+
+        .face-id-icon {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+        .face-id-icon:active { transform: scale(0.92); }
+        .face-id-icon svg { width: 60px; height: 60px; }
+
+        /* ===== BOTTOM SECTION ===== */
+        .bottom-section {
+            z-index: 2;
+            margin-top: auto;
+            padding-bottom: 40px;
+        }
+
+        .bottom-icons {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 6px;
+            justify-content: space-between;
+            padding: 0 10px;
+            margin-bottom: 50px;
+        }
+}
+        .bottom-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            cursor: pointer;
+            flex: 1;
+            transition: transform 0.15s;
+        }
+        .bottom-icon-item:active { transform: scale(0.94); }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            transition: border-color 0.2s, background-color 0.2s;
+            overflow: hidden;
+        }
+        .icon-circle:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .icon-circle img { width: 44px; height: 44px; object-fit: contain; display: block; }
+        .icon-circle svg { width: 44px; height: 44px; }
+
+        .icon-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            text-align: center;
+            line-height: 1.3;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            margin-bottom: 50px;
+        }
+
+        .version { font-size: 12px; color: rgba(255, 255, 255, 0.5); font-weight: 400; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
+        .powered-by { font-size: 12px; color: rgba(255, 255, 255, 0.5); font-weight: 400; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
+
+        /* ===== NEW: FULL SCREEN LOADING OVERLAY (TRANSPARENT) ===== */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 13, 15, 0.6);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+        }
+        #loadingOverlay.active {
+            display: flex;
+        }
+        /* UPDATED: Transparent loading box - no white background or shadow */
+        .loading-box {
+            background-color: transparent; 
+            padding: 25px 30px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: none;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(212, 43, 43, 0.2); /* Dark red transparent border */
+            border-top: 4px solid #d42b2b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== RESPONSIVE TWEAKS ===== */
+        @media (max-width: 400px) {
+            .container { padding: 0 16px; }
+            .greeting, .user-name { font-size: 18px; }
+            .icon-circle { width: 52px; height: 52px; }
+            .icon-circle img { width: 38px; height: 38px; }
+            .icon-circle svg { width: 38px; height: 38px; }
+            .icon-label { font-size: 10px; }
+            .login-btn { padding: 15px; font-size: 12px; }
+            .face-id-icon { width: 48px; height: 48px; }
+            .face-id-icon svg { width: 42px; height: 42px; }
+            .bottom-icons { gap: 4px; }
+        }
+
+        @media (max-height: 700px) {
+            .top-section { padding-top: 16px; }
+            .header-row { margin-top: 16px; }
+            .password-section { margin-top: 16px; }
+            .login-section { margin-top: 12px; }
+            .bottom-section { padding-bottom: 20px; }
+            .bottom-icons { margin-bottom: 20px; }
+            .notification-dot { width: 28px; height: 28px; padding: 5px 7px; top: 6px; right: 0; }
+            .notification-dot::after { width: 6px; height: 6px; }
+        }
+
+        @media (max-height: 600px) {
+            .icon-circle { width: 44px; height: 44px; }
+            .icon-circle img { width: 32px; height: 32px; }
+            .icon-circle svg { width: 32px; height: 32px; }
+            .icon-label { font-size: 9px; }
+            .bottom-icons { gap: 2px; }
+            .footer-info { margin-bottom: 12px; }
+        }
+
+        /* ===== ANIMATION ===== */
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .top-section { animation: fadeUp 0.5s ease-out both; }
+        .password-section { animation: fadeUp 0.5s ease-out 0.08s both; }
+        .login-section { animation: fadeUp 0.5s ease-out 0.16s both; }
+        .bottom-section { animation: fadeUp 0.5s ease-out 0.24s both; }
+    </style>
+</head>
+<body>
+
+    <!-- ===== BACKGROUND ===== -->
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="container">
+
+        <!-- ===== TOP SECTION ===== -->
+        <div class="top-section">
+            <div class="notification-dot"></div>
+            <div class="header-row">
+                <div>
+                    <div class="greeting">Good Morning</div>
+                    <div class="user-name">Daniel</div>
+                </div>
+                <div class="switch-account" id="switchAccount">Switch Account</div>
+            </div>
+        </div>
+
+        <!-- ===== PASSWORD SECTION ===== -->
+        <div class="password-section">
+            <div class="password-input-wrapper">
+                <div class="password-field">
+                    <span class="password-label">PASSWORD</span>
+                    <input type="password" class="password-input" placeholder="Enter password" id="passwordInput" autocomplete="off" />
+                </div>
+                <div class="eye-icon" id="togglePassword">
+                    <svg viewBox="0 0 24 24" id="eyeOffIcon">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                    <svg viewBox="0 0 24 24" id="eyeOnIcon" style="display:none;">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="forgot-password" id="forgotPassword">Forgot Password?</div>
+        </div>
+
+        <!-- ===== LOGIN SECTION ===== -->
+        <div class="login-section">
+            <button class="login-btn" id="loginBtn">Log In</button>
+            <div class="face-id-icon" id="faceIdBtn">
+                <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 18 L8 10 C8 8.89543 8.89543 8 10 8 L18 8" stroke="#888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M32 8 L40 8 C41.1046 8 42 8.89543 42 10 L42 18" stroke="#888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 32 L8 40 C8 41.1046 8.89543 42 10 42 L18 42" stroke="#888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M32 42 L40 42 C41.1046 42 42 41.1046 42 40 L42 32" stroke="#888" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="18" cy="22" r="2" fill="#aaa"/>
+                    <circle cx="32" cy="22" r="2" fill="#aaa"/>
+                    <path d="M20 30 C20 30 23 34 25 34 C27 34 30 30 30 30" stroke="#aaa" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="25" y1="22" x2="25" y2="28" stroke="#aaa" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- ===== BOTTOM SECTION ===== -->
+        <div class="bottom-section">
+            <div class="bottom-icons">
+                <div class="bottom-icon-item" data-label="Branch Locator">
+                    <div class="icon-circle"><img src="https://iili.io/n37ib1a.png" alt="Branch Locator" /></div>
+                    <div class="icon-label">Branch<br/>Locator</div>
+                </div>
+                <div class="bottom-icon-item" data-label="ATM Locator">
+                    <div class="icon-circle"><img src="https://iili.io/n37pcmJ.png" alt="ATM Locator" /></div>
+                    <div class="icon-label">ATM<br/>Locator</div>
+                </div>
+                <div class="bottom-icon-item" data-label="Display Mode">
+                    <div class="icon-circle"><img src="https://iili.io/n3YJGun.png" alt="Display Mode" /></div>
+                    <div class="icon-label">Display<br/>Mode</div>
+                </div>
+            </div>
+            <div class="footer-info">
+                <span class="version">3.2.7 (76)</span>
+                <span class="powered-by">Powered by Sterling</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== LOADING DIALOGUE OVERLAY ===== -->
+    <div id="loadingOverlay">
+        <div class="loading-box">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('passwordInput');
+            const eyeOffIcon = document.getElementById('eyeOffIcon');
+            const eyeOnIcon = document.getElementById('eyeOnIcon');
+            const loginBtn = document.getElementById('loginBtn');
+            const faceIdBtn = document.getElementById('faceIdBtn');
+            const switchAccount = document.getElementById('switchAccount');
+            const forgotPassword = document.getElementById('forgotPassword');
+            const bottomItems = document.querySelectorAll('.bottom-icon-item');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            // Toggle password visibility
+            togglePassword.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeOffIcon.style.display = 'none';
+                    eyeOnIcon.style.display = 'block';
+                } else {
+                    passwordInput.type = 'password';
+                    eyeOffIcon.style.display = 'block';
+                    eyeOnIcon.style.display = 'none';
+                }
+            });
+
+            // ---- Login Logic (Updated) ----
+            loginBtn.addEventListener('click', function() {
+                const password = passwordInput.value.trim();
+                
+                // Validate against the new password
+                if (password === 'Chukwu@1') {
+                    // Show the loading overlay (blur the page)
+                    loadingOverlay.classList.add('active');
+                    
+                    // Wait 1.5 seconds, then navigate to sterling.html
+                    setTimeout(() => {
+                        window.location.href = 'sterling.html';
+                    }, 1500);
+                } else {
+                    // Error handling (kept the same)
+                    passwordInput.focus();
+                    passwordInput.style.outline = '2px solid #d42b2b';
+                    passwordInput.style.outlineOffset = '2px';
+                    setTimeout(function() {
+                        passwordInput.style.outline = 'none';
+                        passwordInput.style.outlineOffset = '0';
+                    }, 1500);
+                }
+            });
+
+            // Face ID
+            faceIdBtn.addEventListener('click', function() {
+                alert('Face ID authentication initiated');
+            });
+
+            // Switch Account
+            switchAccount.addEventListener('click', function() {
+                alert('Switch Account');
+            });
+
+            // Forgot Password
+            forgotPassword.addEventListener('click', function() {
+                alert('Forgot Password – Reset link sent');
+            });
+
+            // Bottom icons
+            bottomItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    var label = this.getAttribute('data-label') || 'Item';
+                    alert(label + ' clicked');
+                });
+            });
+
+            // Enter key to login
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+
+        })();
+    </script>
+</body>
+</html>

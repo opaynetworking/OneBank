@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Edit Balance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Reset & Global --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #000; display: flex; justify-content: center; min-height: 100vh; color: #ffffff; }
+        
+        .app-container {
+            width: 100%; max-width: 400px; background-color: #1a1a1a; padding: 15px 20px 30px 20px;
+            position: relative; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* --- Header --- */
+        .header { display: flex; justify-content: center; align-items: center; position: relative; margin-bottom: 40px; padding-top: 10px; }
+        .back-btn {
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;
+        }
+        .header-title { font-size: 18px; font-weight: 500; color: #ffffff; }
+
+        /* --- Input Container --- */
+        .input-group {
+            background-color: #2d2d2d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #3d3d3d;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+
+        .currency-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .currency-symbol {
+            font-size: 24px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Styling the actual input box */
+        #balanceInput {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 550;
+        }
+
+        /* Remove number input arrows */
+        #balanceInput::-webkit-outer-spin-button,
+        #balanceInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* --- Save Button --- */
+        .save-btn {
+            background-color: #2fa4b8;
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .save-btn:active {
+            background-color: #238391;
+        }
+
+        /* --- Reset Button --- */
+        .reset-btn {
+            background-color: transparent;
+            color: #9ca3af;
+            border: 1px solid #3d3d3d;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* --- Status Message --- */
+        #statusMsg {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #4ade80;
+            display: none;
+        }
+
+        #statusMsg.error {
+            color: #ef5350;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- Header -->
+    <header class="header">
+        <button class="back-btn" id="backBtn"><i class="fas fa-chevron-left"></i></button>
+        <span class="header-title">Edit Balance</span>
+    </header>
+
+    <!-- Input Section -->
+    <div class="input-group">
+        <span class="input-label">Enter New Balance</span>
+        <div class="currency-wrapper">
+            <span class="currency-symbol">₦</span>
+            <input type="number" id="balanceInput" placeholder="0.00" step="0.01">
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <button class="save-btn" id="saveBtn">Save Changes</button>
+    <button class="reset-btn" id="resetBtn">Reset to Default</button>
+
+    <!-- Success/Error Message -->
+    <div id="statusMsg"></div>
+
+</div>
+
+<!-- JavaScript for Editing Balance -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const balanceInput = document.getElementById('balanceInput');
+        const saveBtn = document.getElementById('saveBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusMsg = document.getElementById('statusMsg');
+        const backBtn = document.getElementById('backBtn');
+
+        // 1. Load Current Balance on Page Load
+        // Check localStorage, default to 6006.32 if not set
+        const currentBalance = localStorage.getItem('userBalanceNum') || '6006.32';
+        balanceInput.value = parseFloat(currentBalance).toFixed(2);
+
+        // 2. Save Button Logic
+        saveBtn.addEventListener('click', function() {
+            const newAmount = parseFloat(balanceInput.value);
+
+            // Validation
+            if (isNaN(newAmount) || newAmount < 0) {
+                statusMsg.innerText = "Please enter a valid amount.";
+                statusMsg.className = "error";
+                statusMsg.style.display = "block";
+                return;
+            }
+
+            // Save to the exact localStorage key used by sterling.html
+            localStorage.setItem('userBalanceNum', newAmount.toFixed(2));
+
+            // Show success message
+            statusMsg.innerText = "✅ Balance updated successfully!";
+            statusMsg.className = "";
+            statusMsg.style.display = "block";
+
+            // Hide message after 2 seconds
+            setTimeout(() => {
+                statusMsg.style.display = "none";
+            }, 2000);
+        });
+
+        // 3. Reset Button Logic
+        resetBtn.addEventListener('click', function() {
+            localStorage.setItem('userBalanceNum', '6006.32');
+            balanceInput.value = '6006.32';
+            
+            statusMsg.innerText = "Balance reset to NGN 6,006.32";
+            statusMsg.className = "";
+            statusMsg.style.display = "block";
+
+            setTimeout(() => {
+                statusMsg.style.display = "none";
+            }, 2000);
+        });
+
+        // 4. Back Button Logic
+        backBtn.addEventListener('click', function() {
+            window.location.href = '/sterling.html';
+        });
+    });
+</script>
+
+</body>
+</html>

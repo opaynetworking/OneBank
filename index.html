@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Sterling Bank</title>
+    
+    <!-- Apple Touch Icon for iPhone Home Screen -->
+    <link rel="apple-touch-icon" href="https://iili.io/n3jlvSV.jpg" />
+    
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0d0d0f;
+            overflow: hidden;
+        }
+
+        /* ===== SPLASH CONTAINER ===== */
+        .splash-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0d0d0f;
+            position: relative;
+        }
+
+        .splash-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            animation: fadeIn 0.8s ease-out 0.2s forwards;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            /* no extra styles needed */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-container">
+        <!-- Splash Image (Original Link) -->
+        <img
+        src="https://iili.io/n3YLIdG.jpg"
+        alt="Sterling Bank"
+        class="splash-image"
+        id="splashImage"
+        />
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ---- Wait 3 seconds then redirect ----
+            const redirectDelay = 3000; // 3 seconds
+
+            setTimeout(function() {
+                window.location.href = '/sterlinglog.html';
+            }, redirectDelay);
+
+            // ---- Optional: preload image to ensure it's cached ----
+            const img = document.getElementById('splashImage');
+            if (img.complete) {
+                // Image already loaded
+            } else {
+                img.addEventListener('load', function() {
+                    // Image loaded, timer already running
+                });
+            }
+
+        })();
+    </script>
+</body>
+</html>
