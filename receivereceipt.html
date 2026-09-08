@@ -6,149 +6,76 @@
     <title>Transaction History</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- Reset & Global --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #1a1a1a; color: #ffffff; display: flex; justify-content: center; min-height: 200vh; }
+        .app-container { width: 100%; max-width: 400px; padding: 15px 20px 30px 20px; }
 
-        body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            min-height: 200vh;
-        }
+        .header { display: flex; justify-content: center; align-items: center; position: sticky; top: 0; z-index: 100; background-color: #1a1a1a; margin-bottom: 55px; padding-top: 10px; padding-bottom: 15px; }
+        .back-btn { position: absolute; left: 0; background: none; border: none; color: #ffffff; font-size: 23px; cursor: pointer; }
+        .header-title { font-size: 15px; font-weight: 600; color: #ffffff; }
 
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 15px 20px 30px 20px;
-        }
-
-        /* --- Header (Made Static/Sticky) --- */
-        .header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            /* Set background to match the app background so details scroll *underneath* it */
-            background-color: #1a1a1a; 
-            margin-bottom: 55px;
-            padding-top: 10px;
-            padding-bottom: 15px;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 0;
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 23px;
-            cursor: pointer;
-        }
-
-        .header-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        /* --- Detail Items --- */
-        .detail-item {
-            border-bottom: 1px solid #333333;
-            padding-bottom: 3px;
-            margin-bottom: 15px;
-        }
-
-        .detail-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 550;
-            color: #ffffff;
-            margin-bottom: 8px;
-        }
-
-        .detail-value {
-            display: block;
-            font-size: 13px;
-            color: #cccccc;
-            line-height: 1.5;
-        }
-
-        /* Adjusting specific text styles */
-        .narration-value {
-            font-size: 13px;
-            color: #cccccc;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        
-        /* The last item doesn't have a bottom border in the image */
-        .last-item {
-            border-bottom: 1px solid #333333;
-            padding-bottom: 3px;
-            margin-bottom: 20px;
-        }
+        .detail-item { border-bottom: 1px solid #333333; padding-bottom: 3px; margin-bottom: 15px; }
+        .detail-label { display: block; font-size: 13px; font-weight: 550; color: #ffffff; margin-bottom: 8px; }
+        .detail-value { display: block; font-size: 13px; color: #cccccc; line-height: 1.5; }
+        .narration-value { font-size: 13px; color: #cccccc; line-height: 1.5; word-wrap: break-word; white-space: pre-line; }
+        .last-item { border-bottom: 1px solid #333333; padding-bottom: 3px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
+            <span class="header-title">Transaction History</span>
+        </header>
 
-<div class="app-container">
-    
-    <!-- Header (Stays at the top while scrolling) -->
-    <header class="header">
-        <button class="back-btn"><i class="fas fa-chevron-left"></i></button>
-        <span class="header-title">Transaction History</span>
-    </header>
-
-    <!-- Content (Scrolls up under the header) -->
-    <div class="detail-item">
-        <span class="detail-label">Transaction Amount</span>
-        <span class="detail-value">NGN 3,000.00</span>
+        <div class="detail-item"><span class="detail-label">Transaction Amount</span><span class="detail-value" id="amount">Loading...</span></div>
+        <div class="detail-item"><span class="detail-label">Sender Name</span><span class="detail-value" id="sender">Loading...</span></div>
+        <div class="detail-item"><span class="detail-label">Transaction Date</span><span class="detail-value" id="date">Loading...</span></div>
+        <div class="detail-item"><span class="detail-label">Recipient Name</span><span class="detail-value">Not Assigned</span></div>
+        <div class="detail-item"><span class="detail-label">Recipient Bank Details</span><span class="detail-value">Not Assigned</span></div>
+        <div class="detail-item"><span class="detail-label">Recipient Account Number</span><span class="detail-value">Not Assigned</span></div>
+        <div class="detail-item"><span class="detail-label">Reference</span><span class="detail-value" id="reference">Loading...</span></div>
+        <div class="detail-item last-item"><span class="detail-label">Narration</span><span class="narration-value" id="narration">Loading...</span></div>
     </div>
 
-    <div class="detail-item">
-        <span class="detail-label">Sender Name</span>
-        <span class="detail-value">Daniel Chukwuemeka</span>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = JSON.parse(sessionStorage.getItem('tx_data'));
+            if (data) {
+                // Populate Basic Data
+                document.getElementById('amount').innerText = data.amount;
+                document.getElementById('date').innerText = data.date;
 
-    <div class="detail-item">
-        <span class="detail-label">Transaction Date</span>
-        <span class="detail-value">21/08/2026</span>
-    </div>
+                // Parse the specific text for BANKNIP
+                const text = data.text;
 
-    <div class="detail-item">
-        <span class="detail-label">Recipient Name</span>
-        <span class="detail-value">Not Assigned</span>
-    </div>
+                // Extract the Sender Name (Between "SENDER: " and " REMARK")
+                let sender = "Unknown";
+                if (text.includes('SENDER: ')) {
+                    const start = text.indexOf('SENDER: ') + 8;
+                    const end = text.indexOf(' REMARK', start);
+                    sender = text.substring(start, end !== -1 ? end : text.length).trim();
+                }
+                document.getElementById('sender').innerText = sender;
 
-    <div class="detail-item">
-        <span class="detail-label">Recipient Bank Details</span>
-        <span class="detail-value">Not Assigned</span>
-    </div>
+                // Extract the BANKNIP Number (Stops at first space)
+                let bankNipNumber = "N/A";
+                if (text.includes('BANKNIP From ')) {
+                    const start = text.indexOf('BANKNIP From ') + 13;
+                    const end = text.indexOf(' ', start);
+                    bankNipNumber = text.substring(start, end !== -1 ? end : text.length).trim();
+                }
+                document.getElementById('reference').innerText = bankNipNumber;
 
-    <div class="detail-item">
-        <span class="detail-label">Recipient Account Number</span>
-        <span class="detail-value">Not Assigned</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Reference</span>
-        <span class="detail-value">100033260821141620348549170587</span>
-    </div>
-
-    <div class="detail-item last-item">
-        <span class="detail-label">Narration</span>
-        <span class="narration-value">BANKNIP From 100033260821141620348549170587 100033 PAYREF: 100033260821141620348549170587 SENDER: DANIEL NKEM CHUKWUEMEKA REMARK: DANIEL NKEM CHUKWUEMEKA:8130772885</span>
-    </div>
-
-</div>
-
+                // Format Narration exactly as requested
+                const payRef = bankNipNumber; // The prompt says "1000332 PAYREF: and the number", using the same number extracted above.
+                document.getElementById('narration').innerText = 
+                    `BANKNIP from : ${bankNipNumber}\n` +
+                    `1000332 PAYREF: ${payRef}\n` +
+                    `SENDER: ${sender}\n` +
+                    `REMARK: ${sender}:8130772885`;
+            }
+        });
+    </script>
 </body>
 </html>

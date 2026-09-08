@@ -6,193 +6,69 @@
     <title>Transaction History</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* --- Reset & Global --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #1a1a1a; color: #ffffff; display: flex; justify-content: center; min-height: 200vh; }
+        .app-container { width: 100%; max-width: 400px; padding: 15px 20px 30px 20px; }
 
-        body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            min-height: 200vh;
-        }
+        .header { display: flex; justify-content: center; align-items: center; position: sticky; top: 0; z-index: 100; background-color: #1a1a1a; margin-bottom: 30px; padding-top: 10px; padding-bottom: 15px; }
+        .back-btn { position: absolute; left: 0; background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; }
+        .header-title { font-size: 15px; font-weight: 600; color: #ffffff; }
 
-        .app-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 15px 20px 30px 20px;
-        }
+        .share-receipt-container { background-color: #d3eef5; border-radius: 12px; padding: 15px 10px; display: flex; align-items: center; margin-bottom: 30px; margin-top: -20px; }
+        .share-icon { color: #00A9FA; font-size: 33px; margin-right: 15px; margin-left: 13px; }
+        .share-text-group { display: flex; flex-direction: column; gap: 3px; }
+        .share-title { font-size: 13px; font-weight: 535; color: #1a1a1a; }
+        .share-subtitle { font-size: 12px; font-weight: 400; color: #555555; }
 
-        /* --- Header (Static/Sticky) --- */
-        .header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background-color: #1a1a1a; 
-            margin-bottom: 30px;
-            padding-top: 10px;
-            padding-bottom: 15px;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 0;
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .header-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        /* --- Share Receipt Box (Newly Added) --- */
-        .share-receipt-container {
-            background-color: #d3eef5;
-            border-radius: 12px;
-            padding: 15px 10px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            margin-top: -20px; /* Tightens spacing directly below the sticky header */
-        }
-
-        .share-icon {
-            color: #00A9FA;
-            font-size: 33px;
-            margin-right: 15px;
-            margin-left: 13px;
-        }
-
-        .share-text-group {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .share-title {
-            font-size: 13px;
-            font-weight: 535;
-            color: #1a1a1a;
-        }
-
-        .share-subtitle {
-            font-size: 12px;
-            font-weight: 400;
-            color: #555555;
-        }
-
-        /* --- Detail Items --- */
-        .detail-item {
-            border-bottom: 1px solid #333333;
-            padding-bottom: 0px;
-            margin-bottom: 15px;
-        }
-
-        .detail-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 550;
-            color: #ffffff;
-            margin-bottom: 8px;
-        }
-
-        .detail-value {
-            display: block;
-            font-size: 13px;
-            color: #cccccc;
-            line-height: 1.5;
-        }
-
-        /* Adjusting specific text styles */
-        .narration-value {
-            font-size: 13px;
-            color: #cccccc;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        
-        /* The last item doesn't have a bottom border in the image */
-        .last-item {
-            border-bottom: 1px solid: #cccccc;
-            padding-bottom: 3px;
-            margin-bottom: 20px;
-        }
+        .detail-item { border-bottom: 1px solid #333333; padding-bottom: 0px; margin-bottom: 15px; }
+        .detail-label { display: block; font-size: 13px; font-weight: 550; color: #ffffff; margin-bottom: 8px; }
+        .detail-value { display: block; font-size: 13px; color: #cccccc; line-height: 1.5; }
+        .narration-value { font-size: 13px; color: #cccccc; line-height: 1.5; word-wrap: break-word; }
+        .last-item { border-bottom: 0.01px solid #cccccc; padding-bottom: 1px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <div class="app-container">
+        <header class="header">
+            <button class="back-btn" onclick="history.back()"><i class="fas fa-chevron-left"></i></button>
+            <span class="header-title">Transaction History</span>
+        </header>
 
-<div class="app-container">
-    
-    <!-- Header (Stays at the top while scrolling) -->
-    <header class="header">
-        <button class="back-btn"><i class="fas fa-chevron-left"></i></button>
-        <span class="header-title">Transaction History</span>
-    </header>
-
-    <!-- Share Receipt Container -->
-    <div class="share-receipt-container">
-        <i class="fas fa-share-alt share-icon"></i>
-        <div class="share-text-group">
-            <span class="share-title">Share Receipt</span>
-            <span class="share-subtitle">Share this transaction receipt with others</span>
+        <div class="share-receipt-container">
+            <i class="fas fa-share-alt share-icon"></i>
+            <div class="share-text-group">
+                <span class="share-title">Share Receipt</span>
+                <span class="share-subtitle">Share this transaction receipt with others</span>
+            </div>
         </div>
+
+        <div class="detail-item"><span class="detail-label">Transaction Amount</span><span class="detail-value" id="amount">Loading...</span></div>
+        <div class="detail-item"><span class="detail-label">Sender Name</span><span class="detail-value" id="sender">Loading...</span></div>
+        <div class="detail-item"><span class="detail-label">Transaction Date</span><span class="detail-value" id="date">Loading...</span></div>
+        <div class="detail-item"><span class="detail-label">Recipient Name</span><span class="detail-value">Not Assigned</span></div>
+        <div class="detail-item"><span class="detail-label">Recipient Bank Details</span><span class="detail-value">Not Assigned</span></div>
+        <div class="detail-item"><span class="detail-label">Recipient Account Number</span><span class="detail-value">Not Assigned</span></div>
+        <div class="detail-item"><span class="detail-label">Reference</span><span class="detail-value" id="reference">Loading...</span></div>
+        <div class="detail-item last-item"><span class="detail-label">Narration</span><span class="narration-value" id="narration">Loading...</span></div>
     </div>
 
-    <!-- Content (Scrolls up under the header) -->
-    <div class="detail-item">
-        <span class="detail-label">Transaction Amount</span>
-        <span class="detail-value">NGN 5,000.00</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Sender Name</span>
-        <span class="detail-value">Daniel Chukwuemeka</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Transaction Date</span>
-        <span class="detail-value">24/08/2026</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Recipient Name</span>
-        <span class="detail-value">Not Assigned</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Recipient Bank Details</span>
-        <span class="detail-value">Not Assigned</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Recipient Account Number</span>
-        <span class="detail-value">Not Assigned</span>
-    </div>
-
-    <div class="detail-item">
-        <span class="detail-label">Reference</span>
-        <span class="detail-value">000001260824085039800887297215</span>
-    </div>
-
-    <div class="detail-item last-item">
-        <span class="detail-label">Narration</span>
-        <span class="narration-value">000001260824085039800887297215 | OneBank Transfer from DANIEL CHUKWUEMEKA to VICTORIA FEJIRO LAWSON</span>
-    </div>
-
-</div>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = JSON.parse(sessionStorage.getItem('tx_data'));
+            if (data) {
+                document.getElementById('amount').innerText = data.amount;
+                document.getElementById('sender').innerText = 'Daniel Chukwuemeka';
+                document.getElementById('date').innerText = data.date;
+                
+                // For Red icons (Send), the whole text is the narration
+                document.getElementById('narration').innerText = data.text;
+                
+                // Reference is the first long number in the text (split by space)
+                let ref = data.text.split(' ')[0];
+                if(ref.includes('|')) ref = ref.split('|')[0].trim(); 
+                document.getElementById('reference').innerText = ref;
+            }
+        });
+    </script>
 </body>
 </html>
