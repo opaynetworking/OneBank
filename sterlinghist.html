@@ -4,30 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OneBank Account</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* --- Reset & Global --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #000; display: flex; justify-content: center; min-height: 100vh; color: #ffffff; }
-        
-        /* --- Slide Animations --- */
         .app-container {
             width: 100%; max-width: 400px; background-color: #1a1a1a; padding: 15px 15px 30px 15px;
             position: relative; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.8);
             transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         }
-
-        /* Slide In from Right (When Page Opens) */
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
         .app-container { animation: slideInRight 0.3s ease-out; }
-
-        /* Slide Out to Left (Clicking Transaction History) */
         .slide-out-left { transform: translateX(-100%); opacity: 0; }
-        
-        /* Slide Out to Right (Clicking Back Button) */
         .slide-out-right { transform: translateX(100%); opacity: 0; }
 
         /* --- Top Header --- */
@@ -38,103 +31,64 @@
         }
         .header-title { color: #ffffff; font-size: 18px; font-weight: 500; }
 
-        /* --- Bank Card (Using Image) --- */
+        /* --- Bank Card --- */
         .bank-card {
             background-image: url('https://iili.io/nJofJB1.png');
-            background-size: cover;
-            background-position: center;
-            border-radius: 20px;
-            padding: 25px 20px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 30px;
-            height: 170px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            background-size: cover; background-position: center;
+            border-radius: 20px; padding: 25px 20px; position: relative; overflow: hidden;
+            margin-bottom: 30px; height: 170px; display: flex; flex-direction: column; justify-content: space-between;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        
         .card-content { position: relative; z-index: 2; }
         .balance-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
-        .balance-row h1 { font-size: 28px; font-weight: 600; letter-spacing: 0.5px; }
+        .balance-row h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
         .dropdown-circle { background-color: rgba(255,255,255,0.15); width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #e0e0e0; }
-        .account-number { font-size: 16px; color: #e0e0e0; letter-spacing: 1px; margin-bottom: 10px; }
-        .account-details { font-size: 13px; color: #e0e0e0; line-height: 1.4; }
+        .account-number { font-size: 16px; font-weight: 500; color: #ffffff; letter-spacing: 1px; margin-bottom: 10px; }
+        .account-details { font-size: 13px; font-weight: 500; color: #ffffff; line-height: 1.4; }
         .eye-icon-container { 
             position: absolute; bottom: 20px; right: 20px; z-index: 2; background-color: #fff; width: 36px; height: 36px; 
             border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1a1a1a; cursor: pointer; 
         }
 
-        /* --- Quick Action Grid (5 items) --- */
-        .action-grid { 
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; text-align: center; margin-bottom: 25px; 
-        }
+        /* --- Quick Action Grid --- */
+        .action-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; text-align: center; margin-bottom: 25px; }
         .action-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .action-icon-ring { 
             width: 52px; height: 52px; border-radius: 50%; background-color: #1a1a1a; border: 1px solid #4a4a4a; 
             display: flex; justify-content: center; align-items: center; overflow: hidden;
         }
-        .action-icon-ring img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 6px;
-        }
+        .action-icon-ring img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
         .action-item span { font-size: 11px; color: #e0e0e0; text-align: center; line-height: 1.2; }
 
-        /* --- Other Actions Section --- */
+        /* --- Other Actions --- */
         .section-title { color: #9ca3af; font-size: 15px; font-weight: 500; margin-bottom: 15px; margin-top: 10px; }
-        
         .other-actions-list { display: flex; flex-direction: column; }
         .action-list-item { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
         .action-list-item:last-child { border-bottom: none; }
-        
-        .list-icon-container { 
-            width: 32px; 
-            text-align: center; 
-            margin-right: 15px; 
-            font-size: 20px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-        }
-        
-        .list-icon-container img {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-        }
-
+        .list-icon-container { width: 32px; text-align: center; margin-right: 15px; font-size: 20px; display: flex; justify-content: center; align-items: center; }
+        .list-icon-container img { width: 24px; height: 24px; object-fit: contain; }
         .list-text-group { flex: 1; display: flex; flex-direction: column; }
         .list-title { color: #ffffff; font-size: 15px; font-weight: 500; }
         .list-subtitle { color: #9ca3af; font-size: 12px; margin-top: 3px; }
         .list-arrow { color: #ffffff; font-size: 14px; }
-
-        /* --- Disabled Item Styles --- */
         .list-icon-disabled { color: #5b5b5b; }
         .list-title-disabled { color: #5b5b5b; font-size: 15px; font-weight: 500; }
         .list-subtitle-disabled { color: #3d3d3d; font-size: 12px; margin-top: 3px; }
         .list-arrow-disabled { color: #3d3d3d; font-size: 14px; }
-
         @media (max-width: 400px) { .app-container { max-width: 100%; } }
     </style>
 </head>
 <body>
-
 <div class="app-container" id="mainContainer">
     
-    <!-- Top Header -->
     <header class="header">
         <button class="back-btn" id="backBtn"><i class="fas fa-chevron-left"></i></button>
         <span class="header-title">Account</span>
     </header>
 
-    <!-- Bank Card -->
     <div class="bank-card">
         <div class="card-content">
             <div class="balance-row">
-                <!-- Starts hidden as requested -->
                 <h1 id="balanceDisplay">₦******</h1>
                 <div class="dropdown-circle"><i class="fas fa-chevron-down"></i></div>
             </div>
@@ -149,50 +103,35 @@
         </div>
     </div>
 
-    <!-- Quick Grid Actions -->
+    <!-- Quick Actions with Images -->
     <section class="action-grid">
         <div class="action-item">
-            <div class="action-icon-ring">
-                <img src="https://iili.io/nJnquXS.png" alt="Self Transfer">
-            </div>
+            <div class="action-icon-ring"><img src="https://iili.io/nJnquXS.png" alt="Self Transfer"></div>
             <span>Self<br>Transfer</span>
         </div>
         <div class="action-item">
-            <div class="action-icon-ring">
-                <img src="https://iili.io/nJnTA0B.png" alt="Send Money">
-            </div>
+            <div class="action-icon-ring"><img src="https://iili.io/nJnTA0B.png" alt="Send Money"></div>
             <span>Send<br>Money</span>
         </div>
         <div class="action-item">
-            <div class="action-icon-ring">
-                <img src="https://iili.io/CUp4Vs9.png" alt="Bill Payment">
-            </div>
+            <div class="action-icon-ring"><img src="https://iili.io/CUp4Vs9.png" alt="Bill Payment"></div>
             <span>Bill<br>Payment</span>
         </div>
         <div class="action-item">
-            <div class="action-icon-ring">
-                <img src="https://iili.io/CUpegIe.png" alt="Airtime & Data">
-            </div>
+            <div class="action-icon-ring"><img src="https://iili.io/CUpegIe.png" alt="Airtime & Data"></div>
             <span>Airtime &<br>Data</span>
         </div>
         <div class="action-item">
-            <div class="action-icon-ring">
-                <img src="https://iili.io/CUps8va.png" alt="Always On">
-            </div>
+            <div class="action-icon-ring"><img src="https://iili.io/CUps8va.png" alt="Always On"></div>
             <span>Alw...</span>
         </div>
     </section>
 
-    <!-- Other Actions List -->
     <section class="other-actions-section">
         <h2 class="section-title">Other actions</h2>
         <div class="other-actions-list">
-            
-            <!-- Transaction History (Clickable) -->
             <div class="action-list-item" id="transactionHistoryItem">
-                <div class="list-icon-container">
-                    <img src="https://iili.io/nJagD6G.png" alt="Transaction History">
-                </div>
+                <div class="list-icon-container"><img src="https://iili.io/nJagD6G.png" alt="Transaction History"></div>
                 <div class="list-text-group">
                     <span class="list-title">Transaction History</span>
                     <span class="list-subtitle">View the past 24 hours and anytime</span>
@@ -201,9 +140,7 @@
             </div>
 
             <div class="action-list-item">
-                <div class="list-icon-container">
-                    <img src="https://iili.io/nJayw91.png" alt="Incoming Transactions">
-                </div>
+                <div class="list-icon-container"><img src="https://iili.io/nJayw91.png" alt="Incoming Transactions"></div>
                 <div class="list-text-group">
                     <span class="list-title">Incoming Transactions</span>
                     <span class="list-subtitle">See incoming transactions</span>
@@ -212,9 +149,7 @@
             </div>
 
             <div class="action-list-item">
-                <div class="list-icon-container">
-                    <img src="https://iili.io/nJc3voX.png" alt="Account Statement">
-                </div>
+                <div class="list-icon-container"><img src="https://iili.io/nJc3voX.png" alt="Account Statement"></div>
                 <div class="list-text-group">
                     <span class="list-title">Account Statement</span>
                     <span class="list-subtitle">Request SOA from any date range</span>
@@ -223,9 +158,7 @@
             </div>
 
             <div class="action-list-item">
-                <div class="list-icon-container">
-                    <img src="https://iili.io/nJcBLGt.png" alt="Share Account Details">
-                </div>
+                <div class="list-icon-container"><img src="https://iili.io/nJcBLGt.png" alt="Share Account Details"></div>
                 <div class="list-text-group">
                     <span class="list-title">Share Account Details</span>
                     <span class="list-subtitle">Share account details with others</span>
@@ -234,9 +167,7 @@
             </div>
 
             <div class="action-list-item">
-                <div class="list-icon-container">
-                    <img src="https://iili.io/nJcz0dX.png" alt="Scheduled Transactions">
-                </div>
+                <div class="list-icon-container"><img src="https://iili.io/nJcz0dX.png" alt="Scheduled Transactions"></div>
                 <div class="list-text-group">
                     <span class="list-title">Scheduled Transactions</span>
                     <span class="list-subtitle">Set transaction for a later date</span>
@@ -244,11 +175,8 @@
                 <div class="list-arrow"><i class="fas fa-chevron-right"></i></div>
             </div>
 
-            <!-- NEW: Freeze Account (Disabled) -->
             <div class="action-list-item">
-                <div class="list-icon-container list-icon-disabled">
-                    <i class="fas fa-snowflake"></i>
-                </div>
+                <div class="list-icon-container list-icon-disabled"><i class="fas fa-snowflake"></i></div>
                 <div class="list-text-group">
                     <span class="list-title-disabled">Freeze Account</span>
                     <span class="list-subtitle-disabled">Make your account temporarily inactive</span>
@@ -256,72 +184,69 @@
                 <div class="list-arrow-disabled"><i class="fas fa-chevron-right"></i></div>
             </div>
 
-            <!-- NEW: Upload Document (Disabled) -->
             <div class="action-list-item">
-                <div class="list-icon-container list-icon-disabled">
-                    <i class="fas fa-copy"></i>
-                </div>
+                <div class="list-icon-container list-icon-disabled"><i class="fas fa-copy"></i></div>
                 <div class="list-text-group">
                     <span class="list-title-disabled">Upload Document</span>
                     <span class="list-subtitle-disabled">Complete KYC to verify your account</span>
                 </div>
                 <div class="list-arrow-disabled"><i class="fas fa-chevron-right"></i></div>
             </div>
-
         </div>
     </section>
-
 </div>
 
-<!-- JavaScript for Hide/Show Balance & Navigation -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const balanceDisplay = document.getElementById('balanceDisplay');
         const eyeContainer = document.getElementById('toggleBalanceBtn');
         const eyeIcon = document.getElementById('eyeIcon');
         const appContainer = document.getElementById('mainContainer');
-        
-        let isBalanceVisible = false; 
 
-        // --- 1. Balance Eye Toggle Functionality ---
-        if (balanceDisplay && eyeContainer && eyeIcon) {
-            eyeContainer.addEventListener('click', function() {
-                if (isBalanceVisible) {
-                    balanceDisplay.textContent = '₦******';
-                    eyeIcon.className = 'fas fa-eye';
-                    isBalanceVisible = false;
-                } else {
-                    balanceDisplay.textContent = '₦12,006.32';
-                    eyeIcon.className = 'fas fa-eye-slash';
-                    isBalanceVisible = true;
-                }
-            });
+        // --- 1. Balance Eye Toggle (Sync with Global State) ---
+        if (localStorage.getItem('userBalanceNum') === null) {
+            localStorage.setItem('userBalanceNum', '6006.32');
+            localStorage.setItem('userBalanceHidden', 'true');
         }
+        let balanceNum = parseFloat(localStorage.getItem('userBalanceNum'));
+        let isBalanceVisible = localStorage.getItem('userBalanceHidden') === 'false';
+
+        function updateBalanceDisplay() {
+            if (isBalanceVisible) {
+                balanceDisplay.textContent = '₦' + balanceNum.toLocaleString('en-NG', { minimumFractionDigits: 2 });
+                eyeIcon.className = 'fas fa-eye';
+            } else {
+                balanceDisplay.textContent = '₦******';
+                eyeIcon.className = 'fas fa-eye-slash';
+            }
+            localStorage.setItem('userBalanceNum', balanceNum.toString());
+            localStorage.setItem('userBalanceHidden', isBalanceVisible ? 'false' : 'true');
+        }
+        updateBalanceDisplay();
+
+        eyeContainer.addEventListener('click', function() {
+            isBalanceVisible = !isBalanceVisible;
+            updateBalanceDisplay();
+        });
 
         // --- 2. Transaction History Navigation (Slide Left) ---
         const transactionHistoryItem = document.getElementById('transactionHistoryItem');
         if (transactionHistoryItem) {
             transactionHistoryItem.addEventListener('click', function() {
                 appContainer.classList.add('slide-out-left');
-                setTimeout(() => {
-                    window.location.href = '/transaction.html';
-                }, 300);
+                setTimeout(() => { window.location.href = '/transaction.html'; }, 300);
             });
         }
 
-        // --- 3. Back Button Navigation (Slide Right) ---
+        // --- 3. Back Button Navigation (Slide Right to sterling.html) ---
         const backBtn = document.getElementById('backBtn');
         if (backBtn) {
             backBtn.addEventListener('click', function() {
                 appContainer.classList.add('slide-out-right');
-                setTimeout(() => {
-                    // EDITED: Directly opens sterling.html
-                    window.location.href = '/sterling.html';
-                }, 300);
+                setTimeout(() => { window.location.href = '/sterling.html'; }, 300);
             });
         }
     });
 </script>
-
 </body>
 </html>
