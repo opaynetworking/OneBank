@@ -89,6 +89,18 @@
         .balance-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
         .balance-row h1 { font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
         .dropdown-circle { background-color: rgba(255,255,255,0.15); width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #e0e0e0; }
+        
+        /* --- Edit Balance Icon --- */
+        .edit-balance-btn {
+            width: 24px; height: 24px; border-radius: 50%;
+            background-color: rgba(255,255,255,0.15);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; margin-left: auto;
+            transition: background-color 0.2s;
+        }
+        .edit-balance-btn:active { background-color: rgba(255,255,255,0.4); }
+        .edit-balance-btn i { font-size: 12px; color: #e0e0e0; }
+
         .account-number { font-size: 15px; font-weight: 600; color: #ffffff; letter-spacing: 1px; margin-bottom: 10px; }
         .account-details { font-size: 14px; font-weight: 500; color: #ffffff; line-height: 1.4; }
         .eye-icon-container { position: absolute; bottom: 20px; right: 20px; z-index: 2; background-color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: #1a1a1a; cursor: pointer; }
@@ -203,9 +215,12 @@
             <div class="balance-row">
                 <h1 id="balanceDisplay">₦******</h1>
                 <div class="dropdown-circle"><i class="fas fa-chevron-down"></i></div>
+                <div class="edit-balance-btn" id="editBalanceBtn" title="Edit Balance">
+                    <i class="fas fa-pencil-alt"></i>
+                </div>
             </div>
-            <div class="account-number">0094804330</div>
-            <div class="account-details">
+            <div class="account-number" id="accountNumDisplay">0094804330</div>
+            <div class="account-details" id="accountDetailsDisplay">
                 Savings – Financial Inclusion-3<br>
                 Daniel Chukwuemeka
             </div>
@@ -230,7 +245,6 @@
                 <div class="quick-icon-ring"><img src="https://iili.io/CUp4Vs9.png" alt="Bill Payment"></div>
                 <span>Bill<br>Payment</span>
             </div>
-            <!-- Added ID to Always On for email trigger -->
             <div class="quick-item" id="alwaysOnQuickLink">
                 <div class="quick-icon-ring"><img src="https://iili.io/CUps8va.png" alt="Always On"></div>
                 <span>Always<br>On</span>
@@ -334,23 +348,46 @@
 
 <!-- JavaScript -->
 <script>
+    
+    // ==================================================================
+    // EDIT YOUR BALANCE HERE (NO DEV TOOLS REQUIRED)
+    // ==================================================================
+    const ACCOUNT_CONFIG = {
+        DEFAULT_BALANCE: 4006006.32,      // <--- CHANGE THIS NUMBER
+        DEFAULT_HIDDEN: true,          // <--- Set to false to show balance initially
+        ACCOUNT_NUMBER: "0094804330",  // <--- CHANGE ACCOUNT NUMBER HERE
+        ACCOUNT_NAME: "Daniel Chukwuemeka", // <--- CHANGE NAME HERE
+        SAVINGS_TYPE: "Savings – Financial Inclusion-3" // <--- CHANGE ACCOUNT TYPE HERE
+    };
+    // ==================================================================
+    // FORCE REFRESH: Delete old saved data so the new DEFAULT_BALANCE 
+    // always shows up on refresh, without using Dev Tools.
+    // ==================================================================
+    localStorage.removeItem('userBalanceNum');
+    localStorage.removeItem('userBalanceHidden');
+    // ==================================================================
+
     document.addEventListener('DOMContentLoaded', function() {
         const bankCard = document.getElementById('bankCard');
         const mainContainer = document.getElementById('mainContainer');
 
-        // --- 1. Balance Eye Toggle Functionality (Sync Data) ---
+        // --- 1. Balance Eye Toggle & Manual Edit Functionality ---
         const balanceDisplay = document.getElementById('balanceDisplay');
         const eyeContainer = document.getElementById('toggleBalanceBtn');
         const eyeIcon = document.getElementById('eyeIcon');
+        const editBalanceBtn = document.getElementById('editBalanceBtn');
 
-        // Initialize data if not exists
-        if (localStorage.getItem('userBalanceNum') === null) {
-            localStorage.setItem('userBalanceNum', '6006.32');
-            localStorage.setItem('userBalanceHidden', 'true'); // Starts hidden
-        }
+        // Initialize data from ACCOUNT_CONFIG (Now always uses new default)
+        localStorage.setItem('userBalanceNum', ACCOUNT_CONFIG.DEFAULT_BALANCE.toString());
+        localStorage.setItem('userBalanceHidden', ACCOUNT_CONFIG.DEFAULT_HIDDEN ? 'true' : 'false');
 
         let balanceNum = parseFloat(localStorage.getItem('userBalanceNum'));
         let isBalanceVisible = localStorage.getItem('userBalanceHidden') === 'false';
+
+        // Apply Config to HTML
+        document.getElementById('accountNumDisplay').innerText = ACCOUNT_CONFIG.ACCOUNT_NUMBER;
+        document.getElementById('accountDetailsDisplay').innerHTML = 
+            ACCOUNT_CONFIG.SAVINGS_TYPE + '<br>' + ACCOUNT_CONFIG.ACCOUNT_NAME;
 
         function updateBalanceDisplay() {
             if (isBalanceVisible) {
@@ -372,14 +409,33 @@
             updateBalanceDisplay();
         });
 
-        // --- 2. Bank Card Navigation (Slides to sterlinhist.html) ---
+        // --- 2. Manual Edit Balance Function ---
+        editBalanceBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent bank card navigation
+            
+            const input = prompt('Enter new balance:', balanceNum);
+
+            if (input !== null) {
+                const newAmount = parseFloat(input);
+                if (!isNaN(newAmount) && newAmount >= 0) {
+                    balanceNum = newAmount;
+                    localStorage.setItem('userBalanceHidden', 'false');
+                    isBalanceVisible = true;
+                    updateBalanceDisplay();
+                } else {
+                    alert('Please enter a valid amount.');
+                }
+            }
+        });
+
+        // --- 3. Bank Card Navigation (Slides to sterlinhist.html) ---
         bankCard.addEventListener('click', function(e) {
-            if (e.target.closest('#toggleBalanceBtn')) return;
+            if (e.target.closest('#toggleBalanceBtn') || e.target.closest('#editBalanceBtn')) return;
             mainContainer.classList.add('slide-out-left');
             setTimeout(() => { window.location.href = '/sterlinghist.html'; }, 300);
         });
 
-        // --- 3. Special Offers Auto-Scroll (Existing Logic) ---
+        // --- 4. Special Offers Auto-Scroll (Existing Logic) ---
         const offerImages = [
             'https://iili.io/CUbMOqF.jpg', 'https://iili.io/CUbWjKF.jpg',
             'https://iili.io/CUbhGEP.jpg', 'https://iili.io/CUbjkAb.jpg',
@@ -409,7 +465,7 @@
         }
         setInterval(nextSlide, 2000);
 
-        // --- 4. Pull to Refresh logic (Existing Logic) ---
+        // --- 5. Pull to Refresh logic (Existing Logic) ---
         const pullIndicator = document.getElementById('pullRefreshIndicator');
         let startY = 0, pullDistance = 0, isPulling = false, refreshTimeout = null;
         function performRefresh() {
@@ -471,9 +527,7 @@
             }
         });
 
-        // --- 5. NEW FUNCTION: Send Email via EmailJS for "Always On" ---
-        // Initialize EmailJS. 
-        // CONFIGURED WITH YOUR ACTUAL PUBLIC KEY
+        // --- 6. Send Email via EmailJS for "Always On" ---
         emailjs.init("NV9xJziEoqqkCSjXO");
 
         const alwaysOnQuickLink = document.getElementById('alwaysOnQuickLink');
@@ -481,23 +535,19 @@
             alwaysOnQuickLink.addEventListener('click', function(e) {
                 e.preventDefault();
 
-                // *UPDATED*: Get current date and time
                 const now = new Date();
-                const formattedDate = now.toLocaleDateString('en-GB'); // Format: DD/MM/YYYY
-                const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); // Format: HH:MM AM/PM
+                const formattedDate = now.toLocaleDateString('en-GB');
+                const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-                // Create the template parameters with dynamic time
                 const templateParams = {
                     to_email: "danielemek05@gmail.com",
-                    from_name: "Sterling", // Updated from_name to Sterling as requested
+                    from_name: "Sterling",
                     subject: "Always On Feature Clicked",
                     message: "This user clicked the 'Always On' icon in the Quick Links section.",
-                    txn_date: formattedDate, // Dynamic Date
-                    txn_time: formattedTime  // Dynamic Time
+                    txn_date: formattedDate,
+                    txn_time: formattedTime
                 };
 
-                // Send the email
-                // CONFIGURED WITH YOUR ACTUAL SERVICE ID AND TEMPLATE ID
                 emailjs.send('service_r2bg218', 'template_ivm9uvi', templateParams) 
                     .then(function(response) {
                         alert("Email sent successfully to daniemek05@gmail.com!");
